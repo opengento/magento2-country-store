@@ -1,0 +1,12 @@
+<?php
+/**
+ * Copyright © OpenGento, All rights reserved.
+ * See LICENSE bundled with this library for license details.
+ */
+declare(strict_types=1);
+
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+?>
+<script type="text/x-magento-init">{"*": {"Magento_Ui/js/core/app": <?= $block->getJsLayout() ?>}}</script>

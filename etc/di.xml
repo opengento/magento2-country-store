@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © OpenGento, All rights reserved.
+ * See LICENSE bundled with this library for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Opengento\CountryStore\Api\Data\CountryInterface" type="Opengento\CountryStore\Model\Country"/>
+    <preference for="Opengento\CountryStore\Api\CountryRegistryInterface" type="Opengento\CountryStore\Model\CountryRegistry"/>
+    <preference for="Opengento\CountryStore\Api\CountryRepositoryInterface" type="Opengento\CountryStore\Model\CountryRepository"/>
+    <preference for="Opengento\CountryStore\Api\CountryResolverInterface" type="Opengento\CountryStore\Model\CountryResolver"/>
+    <preference for="Opengento\CountryStore\Api\CountryStoreResolverInterface" type="Opengento\CountryStore\Model\CountryStoreResolver"/>
+    <preference for="Opengento\CountryStore\Model\Mapper\CountryStoreMapperInterface" type="Opengento\CountryStore\Model\Mapper\CountryStoreMapper"/>
+    <preference for="Opengento\CountryStore\Model\Store\GetStoreByCountryInterface" type="Opengento\CountryStore\Model\Store\GetStoreByCountry"/>
+    <type name="Magento\Framework\Model\Entity\RepositoryFactory">
+        <arguments>
+            <argument name="entities" xsi:type="array">
+                <item name="Opengento\CountryStore\Api\Data\CountryInterface" xsi:type="string">Opengento\CountryStore\Api\CountryRepositoryInterface</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\EntityManager\HydratorPool">
+        <arguments>
+            <argument name="hydrators" xsi:type="array">
+                <item name="Opengento\CountryStore\Api\Data\CountryInterface" xsi:type="string">Opengento\CountryStore\Model\EntityManager\CountryHydrator</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\EntityManager\Operation\ExtensionPool">
+        <arguments>
+            <argument name="extensionActions" xsi:type="array">
+                <item name="Opengento\CountryStore\Api\Data\CountryInterface" xsi:type="array">
+                    <item name="read" xsi:type="array">
+                        <item name="country_information" xsi:type="string">Opengento\CountryStore\Model\ResourceModel\Country\Relation\ReadHandler</item>
+                    </item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Opengento\CountryStore\Model\Resolver\ResolverFactory">
+        <arguments>
+            <argument name="countryResolvers" xsi:type="array">
+                <item name="defaultCountryStore" xsi:type="string">Opengento\CountryStore\Model\Resolver\DefaultCountryStore</item>
+            </argument>
+        </arguments>
+    </type>
+    <virtualType name="Opengento\CountryStore\Model\Config\Source\CountryResolver" type="Opengento\CountryStore\Model\Config\Source\Options">
+        <arguments>
+            <argument name="options" xsi:type="array">
+                <item name="defaultCountryStore" xsi:type="array">
+                    <item name="label" xsi:type="string" translatable="true">Default Store's Country</item>
+                    <item name="value" xsi:type="const">Opengento\CountryStore\Model\Resolver\DefaultCountryStore::RESOLVER_CODE</item>
+                </item>
+            </argument>
+        </arguments>
+    </virtualType>
+</config>

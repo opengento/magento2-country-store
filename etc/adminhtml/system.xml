@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © OpenGento, All rights reserved.
+ * See LICENSE bundled with this library for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="country" translate="label" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Country Store</label>
+            <tab>general</tab>
+            <resource>Opengento_CountryStore::config</resource>
+            <group id="information" translate="label" showInDefault="1" showInWebsite="0" showInStore="0" sortOrder="10">
+                <label>Country Information</label>
+                <field id="website_groups" translate="label" showInDefault="1" showInWebsite="0" showInStore="0" sortOrder="10">
+                    <label>Website Groups</label>
+                    <frontend_model>Opengento\CountryStore\Block\Adminhtml\Config\Form\Field\WebsiteGroup</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <config_path>country/information/website</config_path>
+                </field>
+                <field id="store_countries" translate="label" showInDefault="1" showInWebsite="0" showInStore="0" sortOrder="20">
+                    <label>Store Countries</label>
+                    <frontend_model>Opengento\CountryStore\Block\Adminhtml\Config\Form\Field\StoreCountry</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <config_path>country/information/store</config_path>
+                </field>
+            </group>
+            <group id="resolver" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="20">
+                <label>Country Resolver</label>
+                <field id="code" type="select" translate="label" showInDefault="1" showInWebsite="1" showInStore="1" sortOrder="10" canRestore="1">
+                    <label>Country Resolver</label>
+                    <source_model>Opengento\CountryStore\Model\Config\Source\CountryResolver</source_model>
+                    <config_path>country/resolver/code</config_path>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
