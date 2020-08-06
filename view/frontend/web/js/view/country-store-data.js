@@ -15,13 +15,13 @@ define([
             this._super();
             this.countryStoreData = customerData.get('country_store_data');
 
-            if (this._isSectionEmpty()) {
+            if (this.isInvalidated()) {
                 customerData.set('country_store_data', {'reload': true});
                 customerData.reload(['country_store_data']);
             }
         },
 
-        _isSectionEmpty: function () {
+        isInvalidated: function () {
             return !this.countryStoreData().code &&
                 !this.countryStoreData().reload &&
                 !_.contains(customerData.getExpiredSectionNames(), 'country_store_data');
