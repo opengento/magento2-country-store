@@ -69,7 +69,8 @@ final class ReadHandler implements ExtensionInterface
     private function fetchCountry(string $countryCode): Country
     {
         if ($this->collection === null) {
-            $this->collection = $this->collectionFactory->create()->addFieldToSelect(['iso2_code', 'iso3_code']);
+            $this->collection = $this->collectionFactory->create();
+            $this->collection->addFieldToSelect(['country_id', 'iso2_code', 'iso3_code'])->load();
         }
         $country = $this->collection->getItemById($countryCode);
         if (!$country) {
