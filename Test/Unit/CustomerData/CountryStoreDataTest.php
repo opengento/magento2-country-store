@@ -9,12 +9,16 @@ namespace Opengento\CountryStore\Test\Unit\CustomerData;
 
 use Magento\Framework\Api\ExtensibleDataObjectConverter;
 use Magento\Framework\Reflection\DataObjectProcessor;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use Opengento\CountryStore\Api\CountryRegistryInterface;
+use Opengento\CountryStore\Api\CountryStoreResolverInterface;
 use Opengento\CountryStore\Api\Data\CountryExtensionInterface;
 use Opengento\CountryStore\Api\Data\CountryInterface;
 use Opengento\CountryStore\CustomerData\CountryStoreData;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * @covers \Opengento\CountryStore\CustomerData\CountryStoreData
@@ -25,6 +29,16 @@ class CountryStoreDataTest extends TestCase
      * @var MockObject|CountryRegistryInterface
      */
     private $countryRegistry;
+
+    /**
+     * @var MockObject|CountryStoreResolverInterface
+     */
+    private $countryStoreResolver;
+
+    /**
+     * @var MockObject|StoreManagerInterface
+     */
+    private $storeManager;
 
     /**
      * @var MockObject|DataObjectProcessor
@@ -38,22 +52,49 @@ class CountryStoreDataTest extends TestCase
     protected function setUp(): void
     {
         $this->countryRegistry = $this->getMockForAbstractClass(CountryRegistryInterface::class);
+        $this->countryStoreResolver = $this->getMockForAbstractClass(CountryStoreResolverInterface::class);
+        $this->storeManager = $this->getMockForAbstractClass(StoreManagerInterface::class);
         $this->dataObjectProcessor = $this->createMock(DataObjectProcessor::class);
         $this->dataObjectConverter = new ExtensibleDataObjectConverter($this->dataObjectProcessor);
 
-        $this->countryData = new CountryStoreData($this->countryRegistry, $this->dataObjectConverter);
+        $this->countryData = new CountryStoreData(
+            $this->countryRegistry,
+            $this->countryStoreResolver,
+            $this->storeManager,
+            $this->dataObjectConverter,
+            $this->getMockForAbstractClass(LoggerInterface::class)
+        );
     }
 
     /**
      * @dataProvider sectionData
      */
-    public function testGetSectionData(CountryInterface $country, array $countryData, array $expected): void
-    {
+    public function testGetSectionData(
+        $registeredCountry,
+        $resolvedCountry,
+        $registeredStore,
+        $currentStore,
+        array $countryData,
+        array $expected
+    ): void {
+        $countryInvalidated = $registeredCountry !== $resolvedCountry;
+
+        $this->countryRegistry->expects($countryInvalidated ? $this->exactly(2) : $this->once())
+            ->method('get')
+            ->willReturn($registeredCountry, $resolvedCountry);
+        $this->countryRegistry->expects($countryInvalidated ? $this->once() : $this->never())->method('clear');
+
+        $this->countryStoreResolver->expects($this->once())
+            ->method('getStoreAware')
+            ->with($registeredCountry)
+            ->willReturn($registeredStore);
+
+        $this->storeManager->expects($this->once())->method('getStore')->willReturn($currentStore);
+
         $this->dataObjectProcessor->expects($this->once())
             ->method('buildOutputDataArray')
-            ->with($country)
+            ->with($resolvedCountry)
             ->willReturn($countryData);
-        $this->countryRegistry->expects($this->once())->method('get')->willReturn($country);
 
         $this->assertSame($expected, $this->countryData->getSectionData());
     }
@@ -63,9 +104,15 @@ class CountryStoreDataTest extends TestCase
         $countryMockUs = $this->createCountryMock('US', 'United States', 'https://us.website.org/');
         $countryMockFr = $this->createCountryMock('FR', 'France', 'https://eu.website.org/');
 
+        $storeFr = $this->createStoreMock('fr');
+        $storeUs = $this->createStoreMock('us');
+
         return [
             [
                 $countryMockUs,
+                $countryMockUs,
+                $storeUs,
+                $storeUs,
                 [
                     'code' => 'US',
                     'name' => 'United State',
@@ -80,7 +127,10 @@ class CountryStoreDataTest extends TestCase
                 ],
             ],
             [
+                $countryMockUs,
                 $countryMockFr,
+                $storeUs,
+                $storeFr,
                 [
                     'code' => 'FR',
                     'name' => 'France',
@@ -95,6 +145,14 @@ class CountryStoreDataTest extends TestCase
                 ],
             ],
         ];
+    }
+
+    private function createStoreMock(string $code): MockObject
+    {
+        $store = $this->getMockForAbstractClass(StoreInterface::class);
+        $store->method('getCode')->willReturn($code);
+
+        return $store;
     }
 
     private function createCountryMock(string $code, string $name, string $baseUrl): MockObject

@@ -8,32 +8,40 @@ declare(strict_types=1);
 namespace Opengento\CountryStore\Model\ResourceModel\Country\Relation;
 
 use InvalidArgumentException;
-use Magento\Directory\Api\CountryInformationAcquirerInterface;
+use Magento\Directory\Model\Country;
+use Magento\Directory\Model\ResourceModel\Country\CollectionFactory;
+use Magento\Directory\Model\ResourceModel\Country\Collection;
 use Magento\Framework\EntityManager\HydratorPool;
 use Magento\Framework\EntityManager\Operation\ExtensionInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Phrase;
 use Opengento\CountryStore\Api\Data\CountryInterface;
-use Psr\Log\LoggerInterface;
 use function is_array;
 
 final class ReadHandler implements ExtensionInterface
 {
-    private CountryInformationAcquirerInterface $countryInfoAcquirer;
-
     private HydratorPool $hydratorPool;
 
-    private LoggerInterface $logger;
+    private CollectionFactory $collectionFactory;
+
+    private ?Collection $collection;
 
     public function __construct(
-        CountryInformationAcquirerInterface $countryInfoAcquirer,
         HydratorPool $hydratorPool,
-        LoggerInterface $logger
+        CollectionFactory $collectionFactory
     ) {
-        $this->countryInfoAcquirer = $countryInfoAcquirer;
         $this->hydratorPool = $hydratorPool;
-        $this->logger = $logger;
+        $this->collectionFactory = $collectionFactory;
+        $this->collection = null;
     }
 
+    /**
+     * @inheridoc
+     * @param CountryInterface $entity
+     * @param array|null $arguments
+     * @return CountryInterface
+     * @throws NoSuchEntityException
+     */
     public function execute($entity, $arguments = null): CountryInterface
     {
         if (!($entity instanceof CountryInterface)) {
@@ -44,23 +52,30 @@ final class ReadHandler implements ExtensionInterface
         if (!is_array($arguments) && !isset($arguments['code'])) {
             throw new InvalidArgumentException('Argument name "arguments" does not have "code" key-value pair.');
         }
-        $countryCode = (string) $arguments['code'];
+        $country = $this->fetchCountry((string) $arguments['code']);
 
-        try {
-            $countryInformation = $this->countryInfoAcquirer->getCountryInfo($countryCode);
-        } catch (NoSuchEntityException $e) {
-            $this->logger->error($e->getLogMessage(), $e->getTrace());
+        return $this->hydratorPool->getHydrator(CountryInterface::class)->hydrate($entity, [
+            'code' => $country->getCountryId(),
+            'iso_alpha2' => $country->getData('iso2_code'),
+            'iso_alpha3' => $country->getData('iso3_code'),
+        ]);
+    }
 
-            return $entity;
+    /**
+     * @param string $countryCode
+     * @return Country
+     * @throws NoSuchEntityException
+     */
+    private function fetchCountry(string $countryCode): Country
+    {
+        if ($this->collection === null) {
+            $this->collection = $this->collectionFactory->create()->addFieldToSelect(['iso2_code', 'iso3_code']);
+        }
+        $country = $this->collection->getItemById($countryCode);
+        if (!$country) {
+            throw new NoSuchEntityException(new Phrase('There is no country with code "%1".', [$countryCode]));
         }
 
-        /** @var CountryInterface $entity */
-        $entity = $this->hydratorPool->getHydrator(CountryInterface::class)->hydrate($entity, [
-            'code' => $countryCode,
-            'iso_alpha2' => $countryInformation->getTwoLetterAbbreviation(),
-            'iso_alpha3' => $countryInformation->getThreeLetterAbbreviation(),
-        ]);
-
-        return $entity;
+        return $country;
     }
 }

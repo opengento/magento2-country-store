@@ -7,8 +7,9 @@ declare(strict_types=1);
 
 namespace Opengento\CountryStore\Test\Unit\Model\ResourceModel\Country\Relation;
 
-use Magento\Directory\Api\CountryInformationAcquirerInterface;
-use Magento\Directory\Api\Data\CountryInformationInterface;
+use Magento\Directory\Model\Country as CountryModel;
+use Magento\Directory\Model\ResourceModel\Country\Collection;
+use Magento\Directory\Model\ResourceModel\Country\CollectionFactory;
 use Magento\Framework\EntityManager\HydratorPool;
 use Opengento\CountryStore\Api\Data\CountryInterface;
 use Opengento\CountryStore\Model\EntityManager\CountryHydrator;
@@ -16,7 +17,6 @@ use Opengento\CountryStore\Model\ResourceModel\Country\Relation\ReadHandler;
 use Opengento\CountryStore\Test\Unit\Model\Country;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 
 /**
  * @covers \Opengento\CountryStore\Model\ResourceModel\Country\Relation\ReadHandler
@@ -24,9 +24,9 @@ use Psr\Log\LoggerInterface;
 class ReadHandlerTest extends TestCase
 {
     /**
-     * @var MockObject|CountryInformationAcquirerInterface
+     * @var MockObject|Collection
      */
-    private $countryInfoAcquirer;
+    private $collectionMock;
 
     /**
      * @var MockObject|HydratorPool
@@ -37,14 +37,13 @@ class ReadHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->countryInfoAcquirer = $this->getMockForAbstractClass(CountryInformationAcquirerInterface::class);
+        $this->collectionMock = $this->getMockBuilder(Collection::class)->disableOriginalConstructor()->getMock();
+        /** @var MockObject|CollectionFactory $collecFactoryMock */
+        $collecFactoryMock = $this->getMockBuilder(CollectionFactory::class)->disableOriginalConstructor()->getMock();
+        $collecFactoryMock->method('create')->willReturn($this->collectionMock);
         $this->hydratorPool = $this->getMockBuilder(HydratorPool::class)->disableOriginalConstructor()->getMock();
 
-        $this->readHandler = new ReadHandler(
-            $this->countryInfoAcquirer,
-            $this->hydratorPool,
-            $this->getMockForAbstractClass(LoggerInterface::class)
-        );
+        $this->readHandler = new ReadHandler($this->hydratorPool, $collecFactoryMock);
     }
 
     /**
@@ -53,10 +52,19 @@ class ReadHandlerTest extends TestCase
     public function testExecute(string $isoAlpha2, string $isoAlpha3): void
     {
         $country = new Country(['code' => $isoAlpha2]);
-        $countryInfo = $this->getMockForAbstractClass(CountryInformationInterface::class);
-        $countryInfo->expects($this->once())->method('getTwoLetterAbbreviation')->willReturn($isoAlpha2);
-        $countryInfo->expects($this->once())->method('getThreeLetterAbbreviation')->willReturn($isoAlpha3);
-        $this->countryInfoAcquirer->method('getCountryInfo')->with($country->getCode())->willReturn($countryInfo);
+
+        $countryMock = $this->getMockBuilder(CountryModel::class)
+            ->disableOriginalConstructor()
+            ->setMethodsExcept(['getCountryId', '__call'])
+            ->getMock();
+        $countryMock->expects($this->exactly(3))->method('getData')->willReturnMap([
+            ['country_id', null, $isoAlpha2],
+            ['iso2_code', null, $isoAlpha2],
+            ['iso3_code', null, $isoAlpha3],
+        ]);
+        $this->collectionMock->expects($this->once())->method('addFieldToSelect')->willReturn($this->collectionMock);
+        $this->collectionMock->expects($this->once())->method('getItemById')->with($isoAlpha2)->willReturn($countryMock);
+
         $this->hydratorPool->expects($this->once())
             ->method('getHydrator')
             ->with(CountryInterface::class)

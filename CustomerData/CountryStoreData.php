@@ -13,6 +13,7 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
 use Opengento\CountryStore\Api\CountryRegistryInterface;
 use Opengento\CountryStore\Api\CountryStoreResolverInterface;
+use Opengento\CountryStore\Api\Data\CountryInterface;
 use Psr\Log\LoggerInterface;
 
 final class CountryStoreData implements SectionSourceInterface
@@ -43,17 +44,27 @@ final class CountryStoreData implements SectionSourceInterface
 
     public function getSectionData(): array
     {
-        try {
-            $store = $this->countryStoreResolver->getStoreAware($this->countryRegistry->get());
-            $currentStore = $this->storeManager->getStore();
+        $country = $this->countryRegistry->get();
 
-            if ($store->getCode() !== $currentStore->getCode()) {
-                $this->countryRegistry->clear();
-            }
-        } catch (NoSuchEntityException $e) {
-            $this->logger->error($e->getLogMessage(), $e->getTrace());
+        if ($this->isInvalidated($country)) {
+            $this->countryRegistry->clear();
+            $country = $this->countryRegistry->get();
         }
 
-        return $this->dataObjectConverter->toFlatArray($this->countryRegistry->get());
+        return $this->dataObjectConverter->toFlatArray($country);
+    }
+
+    private function isInvalidated(CountryInterface $country): bool
+    {
+        try {
+            $registeredStore = $this->countryStoreResolver->getStoreAware($country);
+            $currentStore = $this->storeManager->getStore();
+        } catch (NoSuchEntityException $e) {
+            $this->logger->error($e->getLogMessage(), $e->getTrace());
+
+            return false;
+        }
+
+        return $registeredStore->getCode() !== $currentStore->getCode();
     }
 }
