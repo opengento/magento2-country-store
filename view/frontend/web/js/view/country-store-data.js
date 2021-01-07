@@ -11,14 +11,14 @@ define([
     'use strict';
 
     return Component.extend({
-        initialize: function () {
+        initialize() {
             this._super();
             var _self = this;
 
             customerData.getInitCustomerData().done(function () { _self.initCountryStoreData(); });
         },
 
-        initCountryStoreData: function () {
+        initCountryStoreData() {
             this.countryStoreData = customerData.get('country_store_data');
 
             if (!this.isRefreshPending() && this.isInvalidated()) {
@@ -27,12 +27,12 @@ define([
             }
         },
 
-        isRefreshPending: function () {
+        isRefreshPending() {
             return this.countryStoreData().reload ||
                 _.contains(customerData.getExpiredSectionNames(), 'country_store_data');
         },
 
-        isInvalidated: function () {
+        isInvalidated() {
             return !this.countryStoreData().code;
         }
     });
