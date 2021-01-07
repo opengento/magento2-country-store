@@ -13,6 +13,12 @@ define([
     return Component.extend({
         initialize: function () {
             this._super();
+            var _self = this;
+
+            customerData.getInitCustomerData().done(function () { _self.initCountryStoreData(); });
+        },
+
+        initCountryStoreData: function () {
             this.countryStoreData = customerData.get('country_store_data');
 
             if (!this.isRefreshPending() && this.isInvalidated()) {
