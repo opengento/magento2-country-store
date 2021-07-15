@@ -112,12 +112,14 @@ class CountryStoreMapperTest extends TestCase
 
     private function setupStoreManager(): void
     {
-        $this->scopeConfig->method('getValue')->with('country/information/store', 'default', null)->willReturn(
-            '{"_0":{"countries":["US"],"store":111},"_1":{"countries":["CA"],"store":112},' .
-            '"_2":{"countries":["FR"],"store":211},"_3":{"countries":["DE"],"store":212},' .
-            '"_4":{"countries":["BE"],"store":213},"_5":{"countries":["RS"],"store":311},' .
-            '"_6":{"countries":["RU"],"store":312},"_7":{"countries":["FR","ES"],"store":313}}'
-        );
+        $this->scopeConfig->method('getValue')
+            ->with('country/information/store', 'default', null)
+            ->willReturn(
+                '{"_0":{"countries":["US"],"store":111},"_1":{"countries":["CA"],"store":112},' .
+                '"_2":{"countries":["FR"],"store":211},"_3":{"countries":["DE"],"store":212},' .
+                '"_4":{"countries":["BE"],"store":213},"_5":{"countries":["RS"],"store":311},' .
+                '"_6":{"countries":["RU"],"store":312},"_7":{"countries":["FR","ES"],"store":313}}'
+            );
 
         $this->storeManager->method('getWebsite')->willReturnMap([
             [1, $this->createWebsiteMock(1, 'website_us')],

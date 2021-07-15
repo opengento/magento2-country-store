@@ -9,8 +9,8 @@ namespace Opengento\CountryStore\Model\ResourceModel\Country\Relation;
 
 use InvalidArgumentException;
 use Magento\Directory\Model\Country;
-use Magento\Directory\Model\ResourceModel\Country\CollectionFactory;
 use Magento\Directory\Model\ResourceModel\Country\Collection;
+use Magento\Directory\Model\ResourceModel\Country\CollectionFactory;
 use Magento\Framework\EntityManager\HydratorPool;
 use Magento\Framework\EntityManager\Operation\ExtensionInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
