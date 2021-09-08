@@ -14,11 +14,15 @@ use Magento\Store\Model\StoreManagerInterface;
 use Opengento\CountryStore\Api\CountryRegistryInterface;
 use Opengento\CountryStore\Api\CountryStoreResolverInterface;
 use Opengento\CountryStore\Api\Data\CountryInterface;
+use Opengento\CountryStore\Model\Resolver\DefaultCountryStore;
+use Opengento\CountryStore\Model\Resolver\ResolverFactory;
 use Psr\Log\LoggerInterface;
 
 final class CountryStoreData implements SectionSourceInterface
 {
     private CountryRegistryInterface $countryRegistry;
+
+    private ResolverFactory $countryResolverFactory;
 
     private CountryStoreResolverInterface $countryStoreResolver;
 
@@ -30,12 +34,14 @@ final class CountryStoreData implements SectionSourceInterface
 
     public function __construct(
         CountryRegistryInterface $countryRegistry,
+        ResolverFactory $countryResolverFactory,
         CountryStoreResolverInterface $countryStoreResolver,
         StoreManagerInterface $storeManager,
         ExtensibleDataObjectConverter $dataObjectConverter,
         LoggerInterface $logger
     ) {
         $this->countryRegistry = $countryRegistry;
+        $this->countryResolverFactory = $countryResolverFactory;
         $this->countryStoreResolver = $countryStoreResolver;
         $this->storeManager = $storeManager;
         $this->dataObjectConverter = $dataObjectConverter;
@@ -47,8 +53,8 @@ final class CountryStoreData implements SectionSourceInterface
         $country = $this->countryRegistry->get();
 
         if ($this->isInvalidated($country)) {
-            $this->countryRegistry->clear();
-            $country = $this->countryRegistry->get();
+            $country = $this->countryResolverFactory->get(DefaultCountryStore::RESOLVER_CODE)->getCountry();
+            $this->countryRegistry->set($country->getCode());
         }
 
         return $this->dataObjectConverter->toFlatArray($country);

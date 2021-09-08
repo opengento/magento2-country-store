@@ -13,7 +13,7 @@ define([
     return Component.extend({
         initialize() {
             this._super();
-            var _self = this;
+            const _self = this;
 
             customerData.getInitCustomerData().done(function () { _self.initCountryStoreData(); });
         },
