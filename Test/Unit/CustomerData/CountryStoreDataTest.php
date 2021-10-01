@@ -8,14 +8,18 @@ declare(strict_types=1);
 namespace Opengento\CountryStore\Test\Unit\CustomerData;
 
 use Magento\Framework\Api\ExtensibleDataObjectConverter;
+use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Reflection\DataObjectProcessor;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Opengento\CountryStore\Api\CountryRegistryInterface;
+use Opengento\CountryStore\Api\CountryResolverInterface;
 use Opengento\CountryStore\Api\CountryStoreResolverInterface;
 use Opengento\CountryStore\Api\Data\CountryExtensionInterface;
 use Opengento\CountryStore\Api\Data\CountryInterface;
 use Opengento\CountryStore\CustomerData\CountryStoreData;
+use Opengento\CountryStore\Model\Resolver\DefaultCountryStore;
+use Opengento\CountryStore\Model\Resolver\ResolverFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -25,10 +29,21 @@ use Psr\Log\LoggerInterface;
  */
 class CountryStoreDataTest extends TestCase
 {
+    private const DEFAULT_RESOLVER_CLASS = 'Vendor\\Module\\Resolver\\Default';
+
     /**
      * @var MockObject|CountryRegistryInterface
      */
     private $countryRegistry;
+
+    /**
+     * @var ObjectManagerInterface|mixed|MockObject
+     */
+    private $objectManager;
+
+    private ResolverFactory $countryResolverFactory;
+
+    private CountryResolverInterface $countryResolver;
 
     /**
      * @var MockObject|CountryStoreResolverInterface
@@ -52,6 +67,12 @@ class CountryStoreDataTest extends TestCase
     protected function setUp(): void
     {
         $this->countryRegistry = $this->getMockForAbstractClass(CountryRegistryInterface::class);
+        $this->objectManager = $this->getMockForAbstractClass(ObjectManagerInterface::class);
+        $this->countryResolverFactory = new ResolverFactory(
+            $this->objectManager,
+            [DefaultCountryStore::RESOLVER_CODE => self::DEFAULT_RESOLVER_CLASS]
+        );
+        $this->countryResolver = $this->getMockForAbstractClass(CountryResolverInterface::class);
         $this->countryStoreResolver = $this->getMockForAbstractClass(CountryStoreResolverInterface::class);
         $this->storeManager = $this->getMockForAbstractClass(StoreManagerInterface::class);
         $this->dataObjectProcessor = $this->createMock(DataObjectProcessor::class);
@@ -59,6 +80,7 @@ class CountryStoreDataTest extends TestCase
 
         $this->countryData = new CountryStoreData(
             $this->countryRegistry,
+            $this->countryResolverFactory,
             $this->countryStoreResolver,
             $this->storeManager,
             $this->dataObjectConverter,
@@ -79,10 +101,19 @@ class CountryStoreDataTest extends TestCase
     ): void {
         $countryInvalidated = $registeredCountry !== $resolvedCountry;
 
-        $this->countryRegistry->expects($countryInvalidated ? $this->exactly(2) : $this->once())
+        $this->objectManager->expects($countryInvalidated ? $this->once() : $this->never())
             ->method('get')
-            ->willReturn($registeredCountry, $resolvedCountry);
-        $this->countryRegistry->expects($countryInvalidated ? $this->once() : $this->never())->method('clear');
+            ->with(self::DEFAULT_RESOLVER_CLASS)
+            ->willReturn($this->countryResolver);
+        $this->countryResolver->expects($countryInvalidated ? $this->once() : $this->never())
+            ->method('getCountry')
+            ->willReturn($resolvedCountry);
+        $this->countryRegistry->expects($this->once())
+            ->method('get')
+            ->willReturn($registeredCountry);
+        $this->countryRegistry->expects($countryInvalidated ? $this->once() : $this->never())
+            ->method('set')
+            ->with($resolvedCountry->getCode());
 
         $this->countryStoreResolver->expects($this->once())
             ->method('getStoreAware')

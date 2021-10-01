@@ -17,6 +17,7 @@ use Opengento\CountryStore\Model\ResourceModel\Country\Relation\ReadHandler;
 use Opengento\CountryStore\Test\Unit\Model\Country;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * @covers \Opengento\CountryStore\Model\ResourceModel\Country\Relation\ReadHandler
@@ -42,8 +43,9 @@ class ReadHandlerTest extends TestCase
         $collecFactoryMock = $this->getMockBuilder(CollectionFactory::class)->disableOriginalConstructor()->getMock();
         $collecFactoryMock->method('create')->willReturn($this->collectionMock);
         $this->hydratorPool = $this->getMockBuilder(HydratorPool::class)->disableOriginalConstructor()->getMock();
+        $loggerMock = $this->getMockForAbstractClass(LoggerInterface::class);
 
-        $this->readHandler = new ReadHandler($this->hydratorPool, $collecFactoryMock);
+        $this->readHandler = new ReadHandler($this->hydratorPool, $collecFactoryMock, $loggerMock);
     }
 
     /**

@@ -11,6 +11,7 @@ use Magento\Framework\EntityManager\Operation\Read\ReadExtensions;
 use Opengento\CountryStore\Api\CountryRepositoryInterface;
 use Opengento\CountryStore\Api\Data\CountryInterface;
 use Opengento\CountryStore\Api\Data\CountryInterfaceFactory;
+use function strtoupper;
 
 final class CountryRepository implements CountryRepositoryInterface
 {
@@ -34,7 +35,9 @@ final class CountryRepository implements CountryRepositoryInterface
 
     public function get(string $countryCode): CountryInterface
     {
-        return $this->countries[$countryCode] ?? $this->countries[$countryCode] = $this->readExtensions->execute(
+        $countryCode = strtoupper($countryCode);
+
+        return $this->countries[$countryCode] ??= $this->readExtensions->execute(
             $this->countryFactory->create(['data' => ['code' => $countryCode]]),
             ['code' => $countryCode]
         );

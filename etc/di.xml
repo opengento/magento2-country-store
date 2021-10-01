@@ -42,6 +42,8 @@
         <arguments>
             <argument name="countryResolvers" xsi:type="array">
                 <item name="defaultCountryStore" xsi:type="string">Opengento\CountryStore\Model\Resolver\DefaultCountryStore</item>
+                <item name="cloudFare" xsi:type="string">Opengento\CountryStore\Model\Resolver\CloudFare</item>
+                <item name="httpHeaderValue" xsi:type="string">Opengento\CountryStore\Model\Resolver\HttpHeaderValue</item>
             </argument>
         </arguments>
     </type>
@@ -51,6 +53,14 @@
                 <item name="defaultCountryStore" xsi:type="array">
                     <item name="label" xsi:type="string" translatable="true">Default Store's Country</item>
                     <item name="value" xsi:type="const">Opengento\CountryStore\Model\Resolver\DefaultCountryStore::RESOLVER_CODE</item>
+                </item>
+                <item name="cloudFare" xsi:type="array">
+                    <item name="label" xsi:type="string" translatable="true">CloudFare IP Country</item>
+                    <item name="value" xsi:type="const">Opengento\CountryStore\Model\Resolver\CloudFare::RESOLVER_CODE</item>
+                </item>
+                <item name="httpHeaderValue" xsi:type="array">
+                    <item name="label" xsi:type="string" translatable="true">HTTP Header Value</item>
+                    <item name="value" xsi:type="const">Opengento\CountryStore\Model\Resolver\HttpHeaderValue::RESOLVER_CODE</item>
                 </item>
             </argument>
         </arguments>

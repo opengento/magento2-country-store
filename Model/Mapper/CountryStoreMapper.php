@@ -70,7 +70,7 @@ final class CountryStoreMapper implements CountryStoreMapperInterface
     private function loadMapper(): void
     {
         $this->countriesByStore = [];
-        $storesByCountry = [[]];
+        $storesByCountry = [];
 
         foreach ($this->resolveCountryStoreMapper() as $countryStoreMapper) {
             if (isset($countryStoreMapper['countries'], $countryStoreMapper['store'])) {
@@ -96,12 +96,12 @@ final class CountryStoreMapper implements CountryStoreMapperInterface
             }
         }
 
-        $this->storesByCountry = array_merge_recursive(...$storesByCountry);
+        $this->storesByCountry = array_merge_recursive([], ...$storesByCountry);
     }
 
     private function resolveCountryStoreMapper(): array
     {
-        return $this->countryStoreMapper ?? $this->countryStoreMapper = $this->serializer->unserialize(
+        return $this->countryStoreMapper ??= $this->serializer->unserialize(
             $this->scopeConfig->getValue(self::CONFIG_PATH_COUNTRY_STORE_MAP) ?? '{}'
         );
     }

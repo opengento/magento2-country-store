@@ -37,13 +37,12 @@ final class RelatedWebsites
 
     public function getListIds(WebsiteInterface $website): array
     {
-        return $this->websites[(int) $website->getId()]
-            ?? $this->websites[(int) $website->getId()] = $this->resolveWebsites($website);
+        return $this->websites[(int) $website->getId()] ??= $this->resolveWebsites($website);
     }
 
     private function resolveWebsites(WebsiteInterface $website): array
     {
-        $websites = [[(int) $website->getId()]];
+        $websites = [];
 
         foreach ($this->resolveWebsiteGroups() as $group) {
             $websitesIds = array_map('\intval', $group['websites'] ?? []);
@@ -52,12 +51,12 @@ final class RelatedWebsites
             }
         }
 
-        return array_values(array_unique(array_merge(...$websites)));
+        return array_values(array_unique(array_merge([(int) $website->getId()], ...$websites)));
     }
 
     private function resolveWebsiteGroups(): array
     {
-        return $this->websiteGroups ?? $this->websiteGroups = $this->serializer->unserialize(
+        return $this->websiteGroups ??= $this->serializer->unserialize(
             $this->scopeConfig->getValue(self::CONFIG_PATH_COUNTRY_WEBSITE_MAP) ?? '{}'
         );
     }

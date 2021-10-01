@@ -16,6 +16,7 @@ use Magento\Framework\EntityManager\Operation\ExtensionInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
 use Opengento\CountryStore\Api\Data\CountryInterface;
+use Psr\Log\LoggerInterface;
 use function is_array;
 
 final class ReadHandler implements ExtensionInterface
@@ -24,14 +25,18 @@ final class ReadHandler implements ExtensionInterface
 
     private CollectionFactory $collectionFactory;
 
+    private LoggerInterface $logger;
+
     private ?Collection $collection;
 
     public function __construct(
         HydratorPool $hydratorPool,
-        CollectionFactory $collectionFactory
+        CollectionFactory $collectionFactory,
+        LoggerInterface $logger
     ) {
         $this->hydratorPool = $hydratorPool;
         $this->collectionFactory = $collectionFactory;
+        $this->logger = $logger;
         $this->collection = null;
     }
 
@@ -40,7 +45,6 @@ final class ReadHandler implements ExtensionInterface
      * @param CountryInterface $entity
      * @param array|null $arguments
      * @return CountryInterface
-     * @throws NoSuchEntityException
      */
     public function execute($entity, $arguments = null): CountryInterface
     {
@@ -52,7 +56,13 @@ final class ReadHandler implements ExtensionInterface
         if (!is_array($arguments) && !isset($arguments['code'])) {
             throw new InvalidArgumentException('Argument name "arguments" does not have "code" key-value pair.');
         }
-        $country = $this->fetchCountry((string) $arguments['code']);
+        try {
+            $country = $this->fetchCountry((string)$arguments['code']);
+        } catch (NoSuchEntityException $e) {
+            $this->logger->error($e->getLogMessage(), $e->getTrace());
+
+            return $entity;
+        }
 
         return $this->hydratorPool->getHydrator(CountryInterface::class)->hydrate($entity, [
             'code' => $country->getCountryId(),
@@ -62,8 +72,6 @@ final class ReadHandler implements ExtensionInterface
     }
 
     /**
-     * @param string $countryCode
-     * @return Country
      * @throws NoSuchEntityException
      */
     private function fetchCountry(string $countryCode): Country
