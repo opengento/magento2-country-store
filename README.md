@@ -21,7 +21,7 @@ This module add the many countries to many stores relation and make it available
 
 Magento 2 Open Source or Commerce edition is required.
 
-###  Composer installation
+### Composer installation
 
 Run the following composer command:
 
