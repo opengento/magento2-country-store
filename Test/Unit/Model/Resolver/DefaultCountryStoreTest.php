@@ -5,7 +5,7 @@
  */
 declare(strict_types=1);
 
-namespace Opengento\CountryStore\Test\Unit\Model\Country\Resolver;
+namespace Opengento\CountryStore\Test\Unit\Model\Resolver;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Api\Data\StoreInterface;
@@ -22,26 +22,10 @@ use PHPUnit\Framework\TestCase;
  */
 class DefaultCountryStoreTest extends TestCase
 {
-    /**
-     * @var MockObject|ScopeConfigInterface
-     */
-    private $scopeConfig;
-
-    /**
-     * @var MockObject|StoreManagerInterface
-     */
-    private $storeManager;
-
-    /**
-     * @var MockObject|CountryStoreMapperInterface
-     */
-    private $countryStoreMapper;
-
-    /**
-     * @var MockObject|CountryRepositoryInterface
-     */
-    private $countryRepository;
-
+    private MockObject|ScopeConfigInterface $scopeConfig;
+    private MockObject|StoreManagerInterface $storeManager;
+    private MockObject|CountryStoreMapperInterface $countryStoreMapper;
+    private MockObject|CountryRepositoryInterface $countryRepository;
     private DefaultCountryStore $defaultCountryStore;
 
     protected function setUp(): void
@@ -75,7 +59,7 @@ class DefaultCountryStoreTest extends TestCase
             ->willReturn($countries);
         $this->scopeConfig->expects($this->once())
             ->method('getValue')
-            ->with('general/country/default', 'store', $store->getCode())
+            ->with('general/country/default', 'store')
             ->willReturn($defaultCountryCode);
         $this->countryRepository->expects($this->once())
             ->method('get')

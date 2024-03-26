@@ -14,44 +14,32 @@ use Magento\Store\Model\StoreManagerInterface;
 use Opengento\CountryStore\Api\Data\CountryInterface;
 use Opengento\CountryStore\Model\Mapper\CountryStoreMapperInterface;
 use Psr\Log\LoggerInterface;
+
 use function count;
 use function in_array;
 
 final class GetStoreByCountry implements GetStoreByCountryInterface
 {
-    private StoreManagerInterface $storeManager;
-
-    private CountryStoreMapperInterface $countryStoreMapper;
-
-    private RelatedWebsites $relatedWebsites;
-
-    private LoggerInterface $logger;
-
     public function __construct(
-        StoreManagerInterface $storeManager,
-        CountryStoreMapperInterface $countryStoreMapper,
-        RelatedWebsites $relatedWebsites,
-        LoggerInterface $logger
-    ) {
-        $this->storeManager = $storeManager;
-        $this->countryStoreMapper = $countryStoreMapper;
-        $this->relatedWebsites = $relatedWebsites;
-        $this->logger = $logger;
-    }
+        private StoreManagerInterface $storeManager,
+        private CountryStoreMapperInterface $countryStoreMapper,
+        private RelatedWebsites $relatedWebsites,
+        private LoggerInterface $logger
+    ) {}
 
     public function getByWebsite(CountryInterface $country, WebsiteInterface $website): StoreInterface
     {
         $websiteIds = $this->relatedWebsites->getListIds($website);
         $websitesCount = count($websiteIds);
-        $stores = $this->countryStoreMapper->getStoresByCountry($country, $website);
-        $relatedWebsite = null;
 
-        for ($i = 0; $i < $websitesCount && !$stores; $i++) {
-            $relatedWebsite = $this->storeManager->getWebsite($websiteIds[$i]);
-            $stores = $this->countryStoreMapper->getStoresByCountry($country, $relatedWebsite);
+        for ($i = 0, $stores = []; $i < $websitesCount && !$stores; $i++) {
+            try {
+                $relatedWebsite = $this->storeManager->getWebsite($websiteIds[$i]);
+                $stores = $this->countryStoreMapper->getStoresByCountry($country, $relatedWebsite);
+            } catch (LocalizedException) {}
         }
 
-        $website = $stores && $relatedWebsite ? $relatedWebsite : $website;
+        $website = $stores && isset($relatedWebsite) ? $relatedWebsite : $website;
         $store = $this->resolveDefaultStore($website);
         if ($stores && !in_array($store->getCode(), $stores, true)) {
             $store = $this->storeManager->getStore($stores[0]);
@@ -69,7 +57,7 @@ final class GetStoreByCountry implements GetStoreByCountryInterface
                 )->getDefaultStoreId()
             );
         } catch (LocalizedException $e) {
-            $this->logger->error($e->getLogMessage(), $e->getTrace());
+            $this->logger->error($e->getLogMessage(), ['exception' => $e]);
         }
 
         return $this->storeManager->getDefaultStoreView();

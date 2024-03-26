@@ -21,16 +21,8 @@ use PHPUnit\Framework\TestCase;
  */
 class CountryResolverTest extends TestCase
 {
-    /**
-     * @var MockObject|ScopeConfigInterface
-     */
-    private $scopeConfig;
-
-    /**
-     * @var MockObject|ObjectManagerInterface
-     */
-    private $objectFactory;
-
+    private MockObject|ScopeConfigInterface $scopeConfig;
+    private MockObject|ObjectManagerInterface $objectFactory;
     private CountryResolver $countryResolver;
 
     /**

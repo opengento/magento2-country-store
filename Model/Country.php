@@ -15,17 +15,11 @@ use Opengento\CountryStore\Api\Data\CountryInterface;
 
 final class Country extends AbstractSimpleObject implements CountryInterface
 {
-    private ListsInterface $localeList;
-
-    private ExtensionAttributesFactory $extensionFactory;
-
     public function __construct(
-        ExtensionAttributesFactory $extensionFactory,
-        ListsInterface $localeList,
+        private ExtensionAttributesFactory $extensionFactory,
+        private ListsInterface $localeList,
         array $data = []
     ) {
-        $this->localeList = $localeList;
-        $this->extensionFactory = $extensionFactory;
         parent::__construct($data);
     }
 

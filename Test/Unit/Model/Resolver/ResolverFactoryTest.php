@@ -12,6 +12,7 @@ use Opengento\CountryStore\Api\CountryResolverInterface;
 use Opengento\CountryStore\Model\Resolver\ResolverFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+
 use function count;
 
 /**
@@ -19,11 +20,7 @@ use function count;
  */
 class ResolverFactoryTest extends TestCase
 {
-    /**
-     * @var MockObject|ObjectManagerInterface
-     */
-    private $objectFactory;
-
+    private MockObject|ObjectManagerInterface $objectFactory;
     private ResolverFactory $resolverFactory;
 
     protected function setUp(): void

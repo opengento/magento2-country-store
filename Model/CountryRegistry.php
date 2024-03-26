@@ -17,21 +17,11 @@ final class CountryRegistry implements CountryRegistryInterface
 {
     private ?CountryInterface $country = null;
 
-    private CountryResolverInterface $countryResolver;
-
-    private CountryRepositoryInterface $countryRepository;
-
-    private DataPersistorInterface $dataPersistor;
-
     public function __construct(
-        CountryResolverInterface $countryResolver,
-        CountryRepositoryInterface $countryRepository,
-        DataPersistorInterface $dataPersistor
-    ) {
-        $this->countryResolver = $countryResolver;
-        $this->countryRepository = $countryRepository;
-        $this->dataPersistor = $dataPersistor;
-    }
+        private CountryResolverInterface $countryResolver,
+        private CountryRepositoryInterface $countryRepository,
+        private DataPersistorInterface $dataPersistor
+    ) {}
 
     public function get(): CountryInterface
     {

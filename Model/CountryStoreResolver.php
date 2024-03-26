@@ -16,25 +16,16 @@ use Opengento\CountryStore\Api\CountryStoreResolverInterface;
 use Opengento\CountryStore\Api\Data\CountryInterface;
 use Opengento\CountryStore\Model\Mapper\CountryStoreMapperInterface;
 use Opengento\CountryStore\Model\Store\GetStoreByCountryInterface;
+
 use function in_array;
 
 final class CountryStoreResolver implements CountryStoreResolverInterface
 {
-    private StoreManagerInterface $storeManager;
-
-    private CountryStoreMapperInterface $countryStoreMapper;
-
-    private GetStoreByCountryInterface $getStoreByCountry;
-
     public function __construct(
-        StoreManagerInterface $storeManager,
-        CountryStoreMapperInterface $countryStoreMapper,
-        GetStoreByCountryInterface $getStoreByCountry
-    ) {
-        $this->storeManager = $storeManager;
-        $this->countryStoreMapper = $countryStoreMapper;
-        $this->getStoreByCountry = $getStoreByCountry;
-    }
+        private StoreManagerInterface $storeManager,
+        private CountryStoreMapperInterface $countryStoreMapper,
+        private GetStoreByCountryInterface $getStoreByCountry
+    ) {}
 
     public function getStoreAware(CountryInterface $country): StoreInterface
     {

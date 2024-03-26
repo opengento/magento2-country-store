@@ -13,14 +13,11 @@ use Magento\Framework\View\Element\Html\Select;
 
 class Country extends Select
 {
-    private Full $countrySource;
-
     public function __construct(
         Context $context,
-        Full $countrySource,
+        private Full $countrySource,
         array $data = []
     ) {
-        $this->countrySource = $countrySource;
         parent::__construct($context, $data);
     }
 

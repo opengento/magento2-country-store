@@ -24,26 +24,10 @@ use PHPUnit\Framework\TestCase;
  */
 class HttpHeaderValueTest extends TestCase
 {
-    /**
-     * @var MockObject|Request
-     */
-    private $request;
-
-    /**
-     * @var MockObject|ScopeConfigInterface
-     */
-    private $scopeConfig;
-
-    /**
-     * @var MockObject|CountryResolverInterface
-     */
-    private $resolver;
-
-    /**
-     * @var MockObject|CountryRepositoryInterface
-     */
-    private $countryRepository;
-
+    private MockObject|Request $request;
+    private MockObject|ScopeConfigInterface $scopeConfig;
+    private MockObject|CountryResolverInterface $resolver;
+    private MockObject|CountryRepositoryInterface $countryRepository;
     private HttpHeaderValue $httpHeaderValueResolver;
 
     protected function setUp(): void

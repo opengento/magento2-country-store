@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace Opengento\CountryStore\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Store\Model\ScopeInterface;
 use Opengento\CountryStore\Api\CountryResolverInterface;
 use Opengento\CountryStore\Api\Data\CountryInterface;
@@ -19,18 +20,14 @@ final class CountryResolver implements CountryResolverInterface
 
     private const CONFIG_PATH_COUNTRY_STORE_RESOLVER_CODE = 'country/resolver/code';
 
-    private ScopeConfigInterface $scopeConfig;
-
-    private ResolverFactory $resolverFactory;
-
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        ResolverFactory $resolverFactory
-    ) {
-        $this->scopeConfig = $scopeConfig;
-        $this->resolverFactory = $resolverFactory;
-    }
+        private ScopeConfigInterface $scopeConfig,
+        private ResolverFactory $resolverFactory
+    ) {}
 
+    /**
+     * @throws NotFoundException
+     */
     public function getCountry(): CountryInterface
     {
         return $this->resolverFactory->get($this->resolveCountryResolverCode())->getCountry();

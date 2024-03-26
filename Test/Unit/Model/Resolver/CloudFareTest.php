@@ -23,21 +23,9 @@ use PHPUnit\Framework\TestCase;
  */
 class CloudFareTest extends TestCase
 {
-    /**
-     * @var MockObject|Request
-     */
-    private $request;
-
-    /**
-     * @var MockObject|CountryResolverInterface
-     */
-    private $resolver;
-
-    /**
-     * @var MockObject|CountryRepositoryInterface
-     */
-    private $countryRepository;
-
+    private MockObject|Request $request;
+    private MockObject|CountryResolverInterface $resolver;
+    private MockObject|CountryRepositoryInterface $countryRepository;
     private CloudFare $cloudFareResolver;
 
     protected function setUp(): void

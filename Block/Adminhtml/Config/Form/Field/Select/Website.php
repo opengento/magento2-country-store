@@ -13,11 +13,9 @@ use Magento\Store\Model\System\Store as StoreSource;
 
 class Website extends Select
 {
-    private StoreSource $storeSource;
-
     public function __construct(
         Context $context,
-        StoreSource $storeSource,
+        private StoreSource $storeSource,
         array $data = []
     ) {
         $this->storeSource = $storeSource;

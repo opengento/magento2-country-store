@@ -9,13 +9,14 @@ namespace Opengento\CountryStore\Model\Mapper;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Api\Data\WebsiteInterface;
-use Magento\Store\Model\StoreManagerInterface;
+use Magento\Store\Api\StoreRepositoryInterface;
+use Magento\Store\Api\WebsiteRepositoryInterface;
 use Opengento\CountryStore\Api\Data\CountryInterface;
 use Psr\Log\LoggerInterface;
+
 use function array_fill_keys;
 use function array_merge_recursive;
 
@@ -23,31 +24,17 @@ final class CountryStoreMapper implements CountryStoreMapperInterface
 {
     private const CONFIG_PATH_COUNTRY_STORE_MAP = 'country/information/store';
 
-    private ScopeConfigInterface $scopeConfig;
-
-    private SerializerInterface $serializer;
-
-    private StoreManagerInterface $storeManager;
-
-    private LoggerInterface $logger;
-
     private ?array $countryStoreMapper = null;
-
     private ?array $countriesByStore = null;
-
     private ?array $storesByCountry = null;
 
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        SerializerInterface $serializer,
-        StoreManagerInterface $storeManager,
-        LoggerInterface $logger
-    ) {
-        $this->scopeConfig = $scopeConfig;
-        $this->serializer = $serializer;
-        $this->storeManager = $storeManager;
-        $this->logger = $logger;
-    }
+        private ScopeConfigInterface $scopeConfig,
+        private SerializerInterface $serializer,
+        private StoreRepositoryInterface $storeRepository,
+        private WebsiteRepositoryInterface $websiteRepository,
+        private LoggerInterface $logger
+    ) {}
 
     public function getCountriesByStore(StoreInterface $store): array
     {
@@ -77,17 +64,17 @@ final class CountryStoreMapper implements CountryStoreMapperInterface
                 $countries = (array) $countryStoreMapper['countries'];
 
                 try {
-                    $store = $this->storeManager->getStore((int) $countryStoreMapper['store']);
-                } catch (NoSuchEntityException $e) {
-                    $this->logger->error($e->getLogMessage(), $e->getTrace());
+                    $store = $this->storeRepository->getActiveStoreById((int) $countryStoreMapper['store']);
+                } catch (LocalizedException $e) {
+                    $this->logger->error($e->getLogMessage(), ['exception' => $e]);
                     continue;
                 }
                 $this->countriesByStore[$store->getCode()] = $countries;
 
                 try {
-                    $website = $this->storeManager->getWebsite($store->getWebsiteId());
+                    $website = $this->websiteRepository->getById((int) $store->getWebsiteId());
                 } catch (LocalizedException $e) {
-                    $this->logger->error($e->getLogMessage(), $e->getTrace());
+                    $this->logger->error($e->getLogMessage(), ['exception' => $e]);
                     continue;
                 }
                 $storeCountries = array_fill_keys($countries, [$store->getCode()]);

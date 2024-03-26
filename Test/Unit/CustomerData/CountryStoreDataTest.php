@@ -31,37 +31,14 @@ class CountryStoreDataTest extends TestCase
 {
     private const DEFAULT_RESOLVER_CLASS = 'Vendor\\Module\\Resolver\\Default';
 
-    /**
-     * @var MockObject|CountryRegistryInterface
-     */
-    private $countryRegistry;
-
-    /**
-     * @var ObjectManagerInterface|mixed|MockObject
-     */
-    private $objectManager;
-
+    private MockObject|CountryRegistryInterface $countryRegistry;
+    private MockObject|ObjectManagerInterface $objectManager;
     private ResolverFactory $countryResolverFactory;
-
     private CountryResolverInterface $countryResolver;
-
-    /**
-     * @var MockObject|CountryStoreResolverInterface
-     */
-    private $countryStoreResolver;
-
-    /**
-     * @var MockObject|StoreManagerInterface
-     */
-    private $storeManager;
-
-    /**
-     * @var MockObject|DataObjectProcessor
-     */
-    private $dataObjectProcessor;
-
+    private MockObject|CountryStoreResolverInterface $countryStoreResolver;
+    private MockObject|StoreManagerInterface $storeManager;
+    private MockObject|DataObjectProcessor $dataObjectProcessor;
     private ExtensibleDataObjectConverter $dataObjectConverter;
-
     private CountryStoreData $countryData;
 
     protected function setUp(): void

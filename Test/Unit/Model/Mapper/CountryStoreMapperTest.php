@@ -11,6 +11,8 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Api\Data\WebsiteInterface;
+use Magento\Store\Api\StoreRepositoryInterface;
+use Magento\Store\Api\WebsiteRepositoryInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Opengento\CountryStore\Api\Data\CountryInterface;
 use Opengento\CountryStore\Model\Mapper\CountryStoreMapper;
@@ -23,31 +25,26 @@ use Psr\Log\LoggerInterface;
  */
 class CountryStoreMapperTest extends TestCase
 {
-    /**
-     * @var MockObject|ScopeConfigInterface
-     */
-    private $scopeConfig;
-
-    /**
-     * @var MockObject|StoreManagerInterface
-     */
-    private $storeManager;
-
+    private MockObject|ScopeConfigInterface $scopeConfig;
+    private MockObject|StoreManagerInterface $storeRepository;
+    private MockObject|StoreManagerInterface $websiteRepository;
     private CountryStoreMapper $countryStoreMapper;
 
     protected function setUp(): void
     {
         $this->scopeConfig = $this->getMockForAbstractClass(ScopeConfigInterface::class);
-        $this->storeManager = $this->getMockForAbstractClass(StoreManagerInterface::class);
+        $this->storeRepository = $this->getMockForAbstractClass(StoreRepositoryInterface::class);
+        $this->websiteRepository = $this->getMockForAbstractClass(WebsiteRepositoryInterface::class);
 
         $this->countryStoreMapper = new CountryStoreMapper(
             $this->scopeConfig,
             new Json(),
-            $this->storeManager,
+            $this->storeRepository,
+            $this->websiteRepository,
             $this->getMockForAbstractClass(LoggerInterface::class)
         );
 
-        $this->setupStoreManager();
+        $this->setupStoreRepository();
     }
 
     /**
@@ -110,7 +107,7 @@ class CountryStoreMapperTest extends TestCase
         ];
     }
 
-    private function setupStoreManager(): void
+    private function setupStoreRepository(): void
     {
         $this->scopeConfig->method('getValue')
             ->with('country/information/store', 'default', null)
@@ -121,12 +118,12 @@ class CountryStoreMapperTest extends TestCase
                 '"_6":{"countries":["RU"],"store":312},"_7":{"countries":["FR","ES"],"store":313}}'
             );
 
-        $this->storeManager->method('getWebsite')->willReturnMap([
+        $this->websiteRepository->method('getById')->willReturnMap([
             [1, $this->createWebsiteMock(1, 'website_us')],
             [2, $this->createWebsiteMock(2, 'website_eu')],
             [3, $this->createWebsiteMock(3, 'website_emea')],
         ]);
-        $this->storeManager->method('getStore')->willReturnMap([
+        $this->storeRepository->method('getActiveStoreById')->willReturnMap([
             [111, $this->createStoreMock('store_us_us', 1)],
             [112, $this->createStoreMock('store_us_ca', 1)],
             [211, $this->createStoreMock('store_eu_fr', 2)],
@@ -135,14 +132,6 @@ class CountryStoreMapperTest extends TestCase
             [311, $this->createStoreMock('store_emea_rs', 3)],
             [312, $this->createStoreMock('store_emea_ru', 3)],
             [313, $this->createStoreMock('store_emea_other', 3)],
-            ['store_us_us', $this->createStoreMock('store_us_us', 1)],
-            ['store_us_ca', $this->createStoreMock('store_us_ca', 1)],
-            ['store_eu_fr', $this->createStoreMock('store_eu_fr', 2)],
-            ['store_eu_de', $this->createStoreMock('store_eu_de', 2)],
-            ['store_eu_be', $this->createStoreMock('store_eu_be', 2)],
-            ['store_emea_rs', $this->createStoreMock('store_emea_rs', 3)],
-            ['store_emea_ru', $this->createStoreMock('store_emea_ru', 3)],
-            ['store_emea_other', $this->createStoreMock('store_emea_other', 3)],
         ]);
     }
 

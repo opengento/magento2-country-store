@@ -16,11 +16,7 @@ use PHPUnit\Framework\TestCase;
 
 class RelatedWebsitesTest extends TestCase
 {
-    /**
-     * @var MockObject|ScopeConfigInterface
-     */
-    private $scopeConfig;
-
+    private MockObject|ScopeConfigInterface $scopeConfig;
     private RelatedWebsites $relatedWebsites;
 
     protected function setUp(): void

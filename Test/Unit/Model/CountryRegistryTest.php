@@ -21,21 +21,9 @@ use PHPUnit\Framework\TestCase;
  */
 class CountryRegistryTest extends TestCase
 {
-    /**
-     * @var MockObject|CountryRepositoryInterface
-     */
-    private $countryRepository;
-
-    /**
-     * @var MockObject|CountryResolverInterface
-     */
-    private $countryResolver;
-
-    /**
-     * @var MockObject|DataPersistorInterface
-     */
-    private $dataPersistor;
-
+    private MockObject|CountryRepositoryInterface $countryRepository;
+    private MockObject|CountryResolverInterface $countryResolver;
+    private MockObject|DataPersistorInterface $dataPersistor;
     private CountryRegistry $countryRegistry;
 
     protected function setUp(): void

@@ -20,33 +20,14 @@ use Psr\Log\LoggerInterface;
 
 final class CountryStoreData implements SectionSourceInterface
 {
-    private CountryRegistryInterface $countryRegistry;
-
-    private ResolverFactory $countryResolverFactory;
-
-    private CountryStoreResolverInterface $countryStoreResolver;
-
-    private StoreManagerInterface $storeManager;
-
-    private ExtensibleDataObjectConverter $dataObjectConverter;
-
-    private LoggerInterface $logger;
-
     public function __construct(
-        CountryRegistryInterface $countryRegistry,
-        ResolverFactory $countryResolverFactory,
-        CountryStoreResolverInterface $countryStoreResolver,
-        StoreManagerInterface $storeManager,
-        ExtensibleDataObjectConverter $dataObjectConverter,
-        LoggerInterface $logger
-    ) {
-        $this->countryRegistry = $countryRegistry;
-        $this->countryResolverFactory = $countryResolverFactory;
-        $this->countryStoreResolver = $countryStoreResolver;
-        $this->storeManager = $storeManager;
-        $this->dataObjectConverter = $dataObjectConverter;
-        $this->logger = $logger;
-    }
+        private CountryRegistryInterface $countryRegistry,
+        private ResolverFactory $countryResolverFactory,
+        private CountryStoreResolverInterface $countryStoreResolver,
+        private StoreManagerInterface $storeManager,
+        private ExtensibleDataObjectConverter $dataObjectConverter,
+        private LoggerInterface $logger
+    ) {}
 
     public function getSectionData(): array
     {
@@ -66,7 +47,7 @@ final class CountryStoreData implements SectionSourceInterface
             $registeredStore = $this->countryStoreResolver->getStoreAware($country);
             $currentStore = $this->storeManager->getStore();
         } catch (NoSuchEntityException $e) {
-            $this->logger->error($e->getLogMessage(), $e->getTrace());
+            $this->logger->error($e->getLogMessage(), ['exception' => $e]);
 
             return false;
         }

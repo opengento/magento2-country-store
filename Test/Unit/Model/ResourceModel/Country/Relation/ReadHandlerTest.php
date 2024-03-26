@@ -24,16 +24,8 @@ use Psr\Log\LoggerInterface;
  */
 class ReadHandlerTest extends TestCase
 {
-    /**
-     * @var MockObject|Collection
-     */
-    private $collectionMock;
-
-    /**
-     * @var MockObject|HydratorPool
-     */
-    private $hydratorPool;
-
+    private MockObject|Collection $collectionMock;
+    private MockObject|HydratorPool $hydratorPool;
     private ReadHandler $readHandler;
 
     protected function setUp(): void
@@ -57,7 +49,7 @@ class ReadHandlerTest extends TestCase
 
         $countryMock = $this->getMockBuilder(CountryModel::class)
             ->disableOriginalConstructor()
-            ->setMethodsExcept(['getCountryId', '__call'])
+            ->onlyMethods(['getData'])
             ->getMock();
         $countryMock->expects($this->exactly(3))->method('getData')->willReturnMap([
             ['country_id', null, $isoAlpha2],

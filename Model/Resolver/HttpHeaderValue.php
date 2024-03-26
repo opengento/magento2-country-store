@@ -17,29 +17,16 @@ use Opengento\CountryStore\Model\CountryResolver;
 
 final class HttpHeaderValue implements CountryResolverInterface
 {
-    private const CONFIG_PATH_COUNTRY_HTTP_HEADER_NAME = 'country/resolver/http_header_name';
-
     public const RESOLVER_CODE = 'httpHeaderValue';
 
-    private Request $request;
-
-    private ScopeConfigInterface $scopeConfig;
-
-    private ResolverFactory $resolverFactory;
-
-    private CountryRepositoryInterface $countryRepository;
+    private const CONFIG_PATH_COUNTRY_HTTP_HEADER_NAME = 'country/resolver/http_header_name';
 
     public function __construct(
-        Request $request,
-        ScopeConfigInterface $scopeConfig,
-        ResolverFactory $resolverFactory,
-        CountryRepositoryInterface $countryRepository
-    ) {
-        $this->request = $request;
-        $this->scopeConfig = $scopeConfig;
-        $this->resolverFactory = $resolverFactory;
-        $this->countryRepository = $countryRepository;
-    }
+        private Request $request,
+        private ScopeConfigInterface $scopeConfig,
+        private ResolverFactory $resolverFactory,
+        private CountryRepositoryInterface $countryRepository
+    ) {}
 
     public function getCountry(): CountryInterface
     {

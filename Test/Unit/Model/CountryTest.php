@@ -19,16 +19,8 @@ use PHPUnit\Framework\TestCase;
  */
 class CountryTest extends TestCase
 {
-    /**
-     * @var MockObject|ListsInterface
-     */
-    private $localeList;
-
-    /**
-     * @var MockObject|ExtensionAttributesFactory
-     */
-    private $extensionFactory;
-
+    private MockObject|ListsInterface $localeList;
+    private MockObject|ExtensionAttributesFactory $extensionFactory;
     private Country $country;
 
     protected function setUp(): void

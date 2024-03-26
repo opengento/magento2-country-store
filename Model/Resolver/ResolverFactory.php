@@ -7,7 +7,9 @@ declare(strict_types=1);
 
 namespace Opengento\CountryStore\Model\Resolver;
 
+use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\Phrase;
 use Opengento\CountryStore\Api\CountryResolverInterface;
 
 /**
@@ -15,23 +17,17 @@ use Opengento\CountryStore\Api\CountryResolverInterface;
  */
 final class ResolverFactory
 {
-    private ObjectManagerInterface $objectManager;
-
-    /**
-     * @var string[]
-     */
-    private array $countryResolvers;
-
     public function __construct(
-        ObjectManagerInterface $objectManager,
-        array $countryResolvers = []
-    ) {
-        $this->objectManager = $objectManager;
-        $this->countryResolvers = $countryResolvers;
-    }
+        private ObjectManagerInterface $objectManager,
+        private array $countryResolvers = []
+    ) {}
 
     public function get(string $resolverCode): CountryResolverInterface
     {
-        return $this->objectManager->get($this->countryResolvers[$resolverCode]);
+        return $this->objectManager->get(
+            $this->countryResolvers[$resolverCode] ?? throw new NotFoundException(
+                new Phrase('"%1" resolver is not declared.', [$resolverCode])
+            )
+        );
     }
 }

@@ -10,30 +10,23 @@ namespace Opengento\CountryStore\Model\Store;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Api\Data\WebsiteInterface;
+
 use function array_map;
 use function array_merge;
+use function array_values;
 use function in_array;
 
 final class RelatedWebsites
 {
     private const CONFIG_PATH_COUNTRY_WEBSITE_MAP = 'country/information/website';
 
-    private ScopeConfigInterface $scopeConfig;
-
-    private SerializerInterface $serializer;
-
-    private array $websiteGroups;
-
-    private array $websites;
+    private ?array $websiteGroups = null;
+    private array $websites = [];
 
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        SerializerInterface $serializer
-    ) {
-        $this->scopeConfig = $scopeConfig;
-        $this->serializer = $serializer;
-        $this->websites = [];
-    }
+        private ScopeConfigInterface $scopeConfig,
+        private SerializerInterface $serializer
+    ) {}
 
     public function getListIds(WebsiteInterface $website): array
     {

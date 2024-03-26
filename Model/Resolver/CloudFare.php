@@ -19,21 +19,11 @@ final class CloudFare implements CountryResolverInterface
 
     public const CF_HTTP_HEADER_IPCOUNTRY = 'HTTP_CF_IPCOUNTRY';
 
-    private Request $request;
-
-    private ResolverFactory $resolverFactory;
-
-    private CountryRepositoryInterface $countryRepository;
-
     public function __construct(
-        Request $request,
-        ResolverFactory $resolverFactory,
-        CountryRepositoryInterface $countryRepository
-    ) {
-        $this->request = $request;
-        $this->resolverFactory = $resolverFactory;
-        $this->countryRepository = $countryRepository;
-    }
+        private Request $request,
+        private ResolverFactory $resolverFactory,
+        private CountryRepositoryInterface $countryRepository
+    ) {}
 
     public function getCountry(): CountryInterface
     {

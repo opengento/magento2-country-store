@@ -11,16 +11,7 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 final class Options implements OptionSourceInterface
 {
-    /**
-     * @var string[][]
-     */
-    private array $options;
-
-    public function __construct(
-        array $options
-    ) {
-        $this->options = $options;
-    }
+    public function __construct(private array $options) {}
 
     public function toOptionArray(): array
     {

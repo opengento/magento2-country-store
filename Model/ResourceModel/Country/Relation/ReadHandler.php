@@ -17,28 +17,18 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
 use Opengento\CountryStore\Api\Data\CountryInterface;
 use Psr\Log\LoggerInterface;
+
 use function is_array;
 
 final class ReadHandler implements ExtensionInterface
 {
-    private HydratorPool $hydratorPool;
-
-    private CollectionFactory $collectionFactory;
-
-    private LoggerInterface $logger;
-
-    private ?Collection $collection;
+    private ?Collection $collection = null;
 
     public function __construct(
-        HydratorPool $hydratorPool,
-        CollectionFactory $collectionFactory,
-        LoggerInterface $logger
-    ) {
-        $this->hydratorPool = $hydratorPool;
-        $this->collectionFactory = $collectionFactory;
-        $this->logger = $logger;
-        $this->collection = null;
-    }
+        private HydratorPool $hydratorPool,
+        private CollectionFactory $collectionFactory,
+        private LoggerInterface $logger
+    ) {}
 
     /**
      * @inheridoc
@@ -59,7 +49,7 @@ final class ReadHandler implements ExtensionInterface
         try {
             $country = $this->fetchCountry((string)$arguments['code']);
         } catch (NoSuchEntityException $e) {
-            $this->logger->error($e->getLogMessage(), $e->getTrace());
+            $this->logger->error($e->getLogMessage(), ['exception' => $e]);
 
             return $entity;
         }

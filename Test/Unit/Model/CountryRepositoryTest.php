@@ -19,16 +19,8 @@ use PHPUnit\Framework\TestCase;
  */
 class CountryRepositoryTest extends TestCase
 {
-    /**
-     * @var MockObject|CountryInterfaceFactory
-     */
-    private $countryFactory;
-
-    /**
-     * @var MockObject|ReadExtensions
-     */
-    private $readExtensions;
-
+    private MockObject|CountryInterfaceFactory $countryFactory;
+    private MockObject|ReadExtensions $readExtensions;
     private CountryRepository $countryRepository;
 
     protected function setUp(): void
