@@ -23,7 +23,7 @@ define([
 
             if (!this.isRefreshPending() && this.isInvalidated()) {
                 customerData.set('country_store_data', {'reload': true});
-                customerData.reload(['country_store_data']);
+                customerData.reload(['country_store_data'], false);
             }
         },
 
