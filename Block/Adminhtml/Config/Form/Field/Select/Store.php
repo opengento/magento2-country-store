@@ -16,9 +16,8 @@ class Store extends Select
     public function __construct(
         Context $context,
         private StoreSource $storeSource,
-        array $data = []
+        array $data = [],
     ) {
-        $this->storeSource = $storeSource;
         parent::__construct($context, $data);
     }
 
